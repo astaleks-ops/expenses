@@ -5,9 +5,91 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="theme-color" content="#111318"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#5B5FEF"/>
+<meta name="application-name" content="Расходы"/>
+<meta name="apple-mobile-web-app-title" content="Расходы"/>
 <title>Мои Расходы</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script>
+// Generate app icon dynamically
+(function(){
+  var sizes=[180,192,512];
+  sizes.forEach(function(s){
+    var c=document.createElement('canvas');c.width=s;c.height=s;
+    var x=c.getContext('2d');
+    // Background gradient
+    var g=x.createLinearGradient(0,0,s,s);
+    g.addColorStop(0,'#5B5FEF');g.addColorStop(1,'#4347C4');
+    x.beginPath();
+    // Rounded rect
+    var r=s*0.22;
+    x.moveTo(r,0);x.lineTo(s-r,0);x.quadraticCurveTo(s,0,s,r);
+    x.lineTo(s,s-r);x.quadraticCurveTo(s,s,s-r,s);
+    x.lineTo(r,s);x.quadraticCurveTo(0,s,0,s-r);
+    x.lineTo(0,r);x.quadraticCurveTo(0,0,r,0);
+    x.closePath();x.fillStyle=g;x.fill();
+
+    // Wallet shape
+    var cx=s/2,cy=s*0.46;
+    var ww=s*0.52,wh=s*0.36,wr=s*0.06;
+    x.beginPath();
+    x.moveTo(cx-ww/2+wr,cy-wh/2);
+    x.lineTo(cx+ww/2-wr,cy-wh/2);x.quadraticCurveTo(cx+ww/2,cy-wh/2,cx+ww/2,cy-wh/2+wr);
+    x.lineTo(cx+ww/2,cy+wh/2-wr);x.quadraticCurveTo(cx+ww/2,cy+wh/2,cx+ww/2-wr,cy+wh/2);
+    x.lineTo(cx-ww/2+wr,cy+wh/2);x.quadraticCurveTo(cx-ww/2,cy+wh/2,cx-ww/2,cy+wh/2-wr);
+    x.lineTo(cx-ww/2,cy-wh/2+wr);x.quadraticCurveTo(cx-ww/2,cy-wh/2,cx-ww/2+wr,cy-wh/2);
+    x.closePath();
+    x.fillStyle='rgba(255,255,255,0.95)';x.fill();
+
+    // Card notch on right
+    var nw=s*0.14,nh=s*0.14,nr=s*0.03;
+    var nx=cx+ww/2-nw,ny=cy-nh/2;
+    x.beginPath();
+    x.moveTo(cx+ww/2,ny);
+    x.lineTo(cx+ww/2,ny+nh);
+    x.lineTo(nx+nr,ny+nh);x.quadraticCurveTo(nx,ny+nh,nx,ny+nh-nr);
+    x.lineTo(nx,ny+nr);x.quadraticCurveTo(nx,ny,nx+nr,ny);
+    x.closePath();
+    x.fillStyle='#5B5FEF';x.fill();
+
+    // Small circle in notch
+    x.beginPath();
+    x.arc(nx+nw*0.45,cy,s*0.028,0,Math.PI*2);
+    x.fillStyle='#fff';x.fill();
+
+    // Ruble sign
+    x.fillStyle='#5B5FEF';
+    x.font='bold '+Math.round(s*0.18)+'px Outfit, sans-serif';
+    x.textAlign='center';x.textBaseline='middle';
+    x.fillText('₽',cx-s*0.06,cy+s*0.01);
+
+    // Coin at bottom
+    var coinX=cx,coinY=s*0.78,coinR=s*0.1;
+    x.beginPath();x.arc(coinX,coinY,coinR,0,Math.PI*2);
+    x.fillStyle='rgba(255,255,255,0.95)';x.fill();
+    x.beginPath();x.arc(coinX,coinY,coinR*0.7,0,Math.PI*2);
+    x.strokeStyle='#5B5FEF';x.lineWidth=s*0.015;x.stroke();
+    x.fillStyle='#5B5FEF';
+    x.font='bold '+Math.round(s*0.09)+'px Outfit, sans-serif';
+    x.fillText('₽',coinX,coinY+s*0.005);
+
+    var url=c.toDataURL('image/png');
+    if(s===180){
+      var l=document.createElement('link');l.rel='apple-touch-icon';l.href=url;document.head.appendChild(l);
+    }
+    if(s===192){
+      var l2=document.createElement('link');l2.rel='icon';l2.type='image/png';l2.sizes='192x192';l2.href=url;document.head.appendChild(l2);
+    }
+    // Manifest
+    if(s===192){
+      var manifest={name:'Мои Расходы',short_name:'Расходы',start_url:'.',display:'standalone',background_color:'#111318',theme_color:'#5B5FEF',icons:[{src:url,sizes:'192x192',type:'image/png'}]};
+      var blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+      var ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(blob);document.head.appendChild(ml);
+    }
+  });
+})();
+</script>
 <style>
 :root{
   --font-d:'Outfit',sans-serif;--font-b:'Nunito',sans-serif;
@@ -122,29 +204,17 @@ function dateStr(d){return d.toISOString().slice(0,10)}
 function isLeap(y){return(y%4===0&&y%100!==0)||y%400===0}
 
 function getFiltered(){
-  if(statsPeriod==='week'){
-    const s=dateStr(statsWeekStart),e=dateStr(addDays(statsWeekStart,6));
-    return expenses.filter(x=>x.date>=s&&x.date<=e);
-  }
+  if(statsPeriod==='week'){const s=dateStr(statsWeekStart),e=dateStr(addDays(statsWeekStart,6));return expenses.filter(x=>x.date>=s&&x.date<=e)}
   if(statsPeriod==='month') return expenses.filter(x=>{const d=new Date(x.date+'T00:00:00');return d.getMonth()===statsMonth&&d.getFullYear()===statsYear});
   return expenses.filter(x=>new Date(x.date+'T00:00:00').getFullYear()===statsYear);
 }
 function getPrevFiltered(){
-  if(statsPeriod==='week'){
-    const ps=addDays(statsWeekStart,-7),s=dateStr(ps),e=dateStr(addDays(ps,6));
-    return expenses.filter(x=>x.date>=s&&x.date<=e);
-  }
-  if(statsPeriod==='month'){
-    let pm=statsMonth-1,py=statsYear;if(pm<0){pm=11;py--}
-    return expenses.filter(x=>{const d=new Date(x.date+'T00:00:00');return d.getMonth()===pm&&d.getFullYear()===py});
-  }
+  if(statsPeriod==='week'){const ps=addDays(statsWeekStart,-7),s=dateStr(ps),e=dateStr(addDays(ps,6));return expenses.filter(x=>x.date>=s&&x.date<=e)}
+  if(statsPeriod==='month'){let pm=statsMonth-1,py=statsYear;if(pm<0){pm=11;py--}return expenses.filter(x=>{const d=new Date(x.date+'T00:00:00');return d.getMonth()===pm&&d.getFullYear()===py})}
   return expenses.filter(x=>new Date(x.date+'T00:00:00').getFullYear()===statsYear-1);
 }
 function getPeriodLabel(){
-  if(statsPeriod==='week'){
-    const e=addDays(statsWeekStart,6);
-    return `${statsWeekStart.getDate()} ${MONTHS_SHORT[statsWeekStart.getMonth()]} — ${e.getDate()} ${MONTHS_SHORT[e.getMonth()]}`;
-  }
+  if(statsPeriod==='week'){const e=addDays(statsWeekStart,6);return `${statsWeekStart.getDate()} ${MONTHS_SHORT[statsWeekStart.getMonth()]} — ${e.getDate()} ${MONTHS_SHORT[e.getMonth()]}`}
   if(statsPeriod==='month') return `${MONTHS[statsMonth]} ${statsYear}`;
   return `${statsYear} год`;
 }
@@ -167,10 +237,7 @@ function render(){
 }
 
 function renderAdd(){
-  let chips=categories.map(c=>{
-    const on=addCat===c.id;
-    return `<button class="chip${on?' on':''}" data-cat="${c.id}" style="${on?`background:${c.color}22;border-color:${c.color};color:${c.color}`:''}">${c.emoji} ${c.name}</button>`;
-  }).join('');
+  let chips=categories.map(c=>{const on=addCat===c.id;return `<button class="chip${on?' on':''}" data-cat="${c.id}" style="${on?`background:${c.color}22;border-color:${c.color};color:${c.color}`:''}">${c.emoji} ${c.name}</button>`}).join('');
   return `<div class="scroll"><h2>Новый расход</h2>
     <div class="card${showShake?' shake':''}" style="padding:24px 20px"><div class="lbl">Сумма</div>
       <div style="display:flex;align-items:baseline;gap:6px;margin-top:8px">
@@ -188,8 +255,7 @@ function renderList(){
   if(!expenses.length) return `<div class="scroll"><h2>История</h2><div class="empty"><div class="big">📝</div><p style="font-size:16px">Пока нет расходов</p></div></div>`;
   const sorted=[...expenses].sort((a,b)=>b.date.localeCompare(a.date));
   const groups={};sorted.forEach(e=>{if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e)});
-  const today=new Date();today.setHours(0,0,0,0);
-  const yest=new Date(today);yest.setDate(yest.getDate()-1);
+  const today=new Date();today.setHours(0,0,0,0);const yest=new Date(today);yest.setDate(yest.getDate()-1);
   let html='<div class="scroll"><h2>История</h2>';
   Object.entries(groups).forEach(([date,items])=>{
     const d=new Date(date+'T00:00:00');
@@ -202,17 +268,14 @@ function renderList(){
         <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:500">${c.name}</div>${e.note?`<div style="font-size:13px;color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.note}</div>`:''}</div>
         <div style="font-size:16px;font-weight:600;white-space:nowrap">${fmt(e.amount)}</div>
         <button class="del" data-del="${e.id}">✕</button></div>`;
-    });
-    html+='</div>';
+    });html+='</div>';
   });
   return html+'</div>';
 }
 
 function renderStats(){
-  const cm=catMap();
-  const me=getFiltered(),prevMe=getPrevFiltered();
-  const total=me.reduce((s,e)=>s+e.amount,0);
-  const prevTotal=prevMe.reduce((s,e)=>s+e.amount,0);
+  const cm=catMap();const me=getFiltered(),prevMe=getPrevFiltered();
+  const total=me.reduce((s,e)=>s+e.amount,0);const prevTotal=prevMe.reduce((s,e)=>s+e.amount,0);
   const diff=prevTotal?Math.round((total-prevTotal)/prevTotal*100):0;
   const days=statsPeriod==='week'?7:statsPeriod==='month'?new Date(statsYear,statsMonth+1,0).getDate():(isLeap(statsYear)?366:365);
   const avgDay=total/days;
@@ -238,7 +301,6 @@ function renderStats(){
   const byC={};me.forEach(e=>{byC[e.catId]=(byC[e.catId]||0)+e.amount});
   const catData=Object.entries(byC).map(([id,v])=>({id,value:v,name:cm[id]?.name||'?',color:cm[id]?.color||'#999',emoji:cm[id]?.emoji||'?',pct:Math.round(v/total*100)})).sort((a,b)=>b.value-a.value);
 
-  // Pie
   let pie='',angle=0;
   catData.forEach(c=>{
     const sw=c.pct/100*360,lg=sw>180?1:0,r=60,cx=70,cy=70;
@@ -252,33 +314,17 @@ function renderStats(){
   let legend=catData.map(c=>`<div class="pie-legend-item"><div class="pie-dot" style="background:${c.color}"></div><span style="flex:1">${c.emoji} ${c.name}</span><span style="color:var(--dim);font-weight:500">${c.pct}%</span></div>`).join('');
   html+=`<div class="card"><div class="lbl" style="margin-bottom:8px">По категориям</div><div class="chart-row"><svg viewBox="0 0 140 140" width="140" height="140">${pie}</svg><div class="pie-legend" style="flex:1">${legend}</div></div></div>`;
 
-  // Bar chart
   let barData=[],barTitle='';
-  if(statsPeriod==='week'){
-    barTitle='По дням недели';
-    for(let i=0;i<7;i++){const ds=dateStr(addDays(statsWeekStart,i));const t=me.filter(e=>e.date===ds).reduce((s,e)=>s+e.amount,0);barData.push({label:DAYS_SHORT[i],total:t})}
-  } else if(statsPeriod==='month'){
-    barTitle='По дням';
-    const dim=new Date(statsYear,statsMonth+1,0).getDate();
-    for(let i=1;i<=dim;i++){const t=me.filter(e=>new Date(e.date+'T00:00:00').getDate()===i).reduce((s,e)=>s+e.amount,0);barData.push({label:i,total:t})}
-  } else {
-    barTitle='По месяцам';
-    for(let i=0;i<12;i++){const t=me.filter(e=>new Date(e.date+'T00:00:00').getMonth()===i).reduce((s,e)=>s+e.amount,0);barData.push({label:MONTHS_SHORT[i],total:t})}
-  }
+  if(statsPeriod==='week'){barTitle='По дням недели';for(let i=0;i<7;i++){const ds=dateStr(addDays(statsWeekStart,i));const t=me.filter(e=>e.date===ds).reduce((s,e)=>s+e.amount,0);barData.push({label:DAYS_SHORT[i],total:t})}}
+  else if(statsPeriod==='month'){barTitle='По дням';const dim=new Date(statsYear,statsMonth+1,0).getDate();for(let i=1;i<=dim;i++){const t=me.filter(e=>new Date(e.date+'T00:00:00').getDate()===i).reduce((s,e)=>s+e.amount,0);barData.push({label:i,total:t})}}
+  else{barTitle='По месяцам';for(let i=0;i<12;i++){const t=me.filter(e=>new Date(e.date+'T00:00:00').getMonth()===i).reduce((s,e)=>s+e.amount,0);barData.push({label:MONTHS_SHORT[i],total:t})}}
   const maxD=Math.max(...barData.map(d=>d.total),1);
   const showEvery=statsPeriod==='month'?Math.ceil(barData.length/10):1;
-  let bars=barData.map((d,i)=>{
-    const h=d.total?Math.max(4,d.total/maxD*100):0;
-    const sl=statsPeriod==='month'?((i%showEvery===0)||(i===barData.length-1)):true;
-    return `<div class="bar-col"><div class="bar-rect" style="height:${h}%"></div>${sl?`<div class="bar-label">${d.label}</div>`:''}</div>`;
-  }).join('');
+  let bars=barData.map((d,i)=>{const h=d.total?Math.max(4,d.total/maxD*100):0;const sl=statsPeriod==='month'?((i%showEvery===0)||(i===barData.length-1)):true;return `<div class="bar-col"><div class="bar-rect" style="height:${h}%"></div>${sl?`<div class="bar-label">${d.label}</div>`:''}</div>`}).join('');
   html+=`<div class="card"><div class="lbl" style="margin-bottom:10px">${barTitle}</div><div class="bars">${bars}</div></div>`;
 
-  // Top
   html+=`<div class="card"><div class="lbl" style="margin-bottom:14px">Топ расходов</div>`;
-  catData.forEach(c=>{
-    html+=`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px">${c.emoji} ${c.name}</span><span style="font-size:14px;font-weight:600">${fmt(c.value)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${c.pct}%;background:${c.color}"></div></div></div>`;
-  });
+  catData.forEach(c=>{html+=`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px">${c.emoji} ${c.name}</span><span style="font-size:14px;font-weight:600">${fmt(c.value)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${c.pct}%;background:${c.color}"></div></div></div>`});
   html+='</div></div>';
   return html;
 }
@@ -286,9 +332,8 @@ function renderStats(){
 function renderCats(){
   let list=categories.map(c=>`<div class="card row" style="padding:14px 16px"><div class="ico" style="background:${c.color}20">${c.emoji}</div><div style="flex:1;font-size:15px;font-weight:500">${c.name}</div><div style="width:12px;height:12px;border-radius:6px;background:${c.color};flex-shrink:0"></div><button class="del" data-delcat="${c.id}">✕</button></div>`).join('');
   let html=`<div class="scroll"><h2>Категории</h2>${list}`;
-  if(!catAdding){
-    html+=`<button class="add-cat-btn" id="bNewCat">＋ Добавить категорию</button>`;
-  } else {
+  if(!catAdding){html+=`<button class="add-cat-btn" id="bNewCat">＋ Добавить категорию</button>`}
+  else{
     let emojis=EMOJIS.map(e=>`<button class="emoji-btn${catEmoji===e?' on':''}" data-em="${e}">${e}</button>`).join('');
     let colors=COLORS.map(c=>`<button class="color-btn${catColor===c?' on':''}" data-col="${c}" style="background:${c}"></button>`).join('');
     html+=`<div class="card">
