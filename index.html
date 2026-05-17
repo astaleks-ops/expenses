@@ -7,7 +7,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="theme-color" content="#111318"/>
 <title>Мои Расходы</title>
-<link rel="manifest" href="data:application/manifest+json,{}"/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -48,8 +47,8 @@ h2{font-family:var(--font-d);font-size:26px;margin:0 0 20px;color:var(--tx)}
 .empty .big{font-size:48px;margin-bottom:14px}
 .bar-track{height:6px;background:var(--chip);border-radius:3px;overflow:hidden;margin-top:6px}
 .bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
-.month-sel{display:flex;align-items:center;justify-content:space-between}
-.month-sel button{background:none;border:none;font-size:22px;cursor:pointer;color:var(--tx);padding:4px 8px}
+.nav-sel{display:flex;align-items:center;justify-content:space-between}
+.nav-sel button{background:none;border:none;font-size:22px;cursor:pointer;color:var(--tx);padding:4px 8px}
 .total-card{background:linear-gradient(135deg,var(--ac),var(--acd));border-radius:20px;padding:24px 20px;margin-bottom:18px;color:#fff}
 .total-card .big{font-size:36px;font-weight:700;font-family:var(--font-d);margin-top:6px}
 .emoji-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
@@ -59,17 +58,21 @@ h2{font-family:var(--font-d);font-size:26px;margin:0 0 20px;color:var(--tx)}
 .color-btn{width:30px;height:30px;border-radius:15px;cursor:pointer;border:3px solid transparent;transition:border .2s}
 .color-btn.on{border-color:var(--tx)}
 .add-cat-btn{width:100%;padding:14px;border:2px dashed var(--brd);border-radius:16px;background:none;color:var(--dim);font-size:15px;cursor:pointer}
+.period-tabs{display:flex;gap:4px;background:var(--chip);border-radius:14px;padding:4px;margin-bottom:14px}
+.period-tab{flex:1;padding:10px 0;border:none;border-radius:11px;font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--dim);transition:all .2s;font-family:var(--font-b)}
+.period-tab.on{background:var(--card);color:var(--tx);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.compare{display:flex;gap:10px;margin-bottom:14px}
+.compare-card{flex:1;background:var(--card);border-radius:16px;padding:14px 12px;box-shadow:var(--sh);text-align:center}
+.compare-card .val{font-size:18px;font-weight:700;font-family:var(--font-d);margin-top:4px}
+.compare-card .sub{font-size:11px;margin-top:2px}
+.trend-up{color:#E74C3C}
+.trend-down{color:#27AE60}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .shake{animation:shake .4s}
-
-/* Simple pie chart */
-.pie-wrap{position:relative;width:140px;height:140px;margin:10px auto}
+.chart-row{display:flex;align-items:center;gap:10px}
 .pie-legend{display:flex;flex-direction:column;gap:6px}
 .pie-legend-item{display:flex;align-items:center;gap:8px;font-size:13px}
 .pie-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
-.chart-row{display:flex;align-items:center;gap:10px}
-
-/* Bar chart */
 .bars{display:flex;align-items:flex-end;gap:2px;height:120px;padding:0 4px}
 .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
 .bar-rect{width:100%;min-width:3px;background:var(--ac);border-radius:2px 2px 0 0;transition:height .4s}
@@ -79,10 +82,11 @@ h2{font-family:var(--font-d);font-size:26px;margin:0 0 20px;color:var(--tx)}
 <body>
 <div id="app"></div>
 <script>
-// ---- Utility ----
 const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
 const LS_EXP='exp-tracker-expenses',LS_CAT='exp-tracker-categories';
 const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const MONTHS_SHORT=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+const DAYS_SHORT=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const EMOJIS=["🍕","🚌","🏠","🎬","💊","👕","📦","☕","🎮","📱","✈️","🎓","💇","🐾","🎁","💡","🔧","📚","🏋️","🛒"];
 const COLORS=["#FF6B6B","#4ECDC4","#45B7D1","#F7DC6F","#82E0AA","#BB8FCE","#AEB6BF","#F0B27A","#E74C3C","#5DADE2","#58D68D","#AF7AC5"];
 const DEFAULT_CATS=[
@@ -99,11 +103,12 @@ function fmt(n){return n.toLocaleString('ru-RU')+' ₽'}
 function load(k,fb){try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb}catch(e){return fb}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
-// ---- State ----
 let expenses=load(LS_EXP,[]);
 let categories=load(LS_CAT,DEFAULT_CATS);
 let tab='add';
-let statsMonth=new Date().getMonth(), statsYear=new Date().getFullYear();
+let statsPeriod='month';
+let statsMonth=new Date().getMonth(),statsYear=new Date().getFullYear();
+let statsWeekStart=getMonday(new Date());
 let catAdding=false,catName='',catEmoji='📦',catColor='#FF6B6B';
 let addCat=categories[0]?.id||'';
 let addNote='',addAmount='',addDate=new Date().toISOString().slice(0,10);
@@ -111,23 +116,54 @@ let successTimer=null,shakeTimer=null,showSuccess=false,showShake=false;
 
 function persist(){save(LS_EXP,expenses);save(LS_CAT,categories)}
 function catMap(){const m={};categories.forEach(c=>m[c.id]=c);return m}
+function getMonday(d){const dt=new Date(d);const day=dt.getDay();const diff=dt.getDate()-day+(day===0?-6:1);dt.setDate(diff);dt.setHours(0,0,0,0);return dt}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r}
+function dateStr(d){return d.toISOString().slice(0,10)}
+function isLeap(y){return(y%4===0&&y%100!==0)||y%400===0}
 
-// ---- Render ----
+function getFiltered(){
+  if(statsPeriod==='week'){
+    const s=dateStr(statsWeekStart),e=dateStr(addDays(statsWeekStart,6));
+    return expenses.filter(x=>x.date>=s&&x.date<=e);
+  }
+  if(statsPeriod==='month') return expenses.filter(x=>{const d=new Date(x.date+'T00:00:00');return d.getMonth()===statsMonth&&d.getFullYear()===statsYear});
+  return expenses.filter(x=>new Date(x.date+'T00:00:00').getFullYear()===statsYear);
+}
+function getPrevFiltered(){
+  if(statsPeriod==='week'){
+    const ps=addDays(statsWeekStart,-7),s=dateStr(ps),e=dateStr(addDays(ps,6));
+    return expenses.filter(x=>x.date>=s&&x.date<=e);
+  }
+  if(statsPeriod==='month'){
+    let pm=statsMonth-1,py=statsYear;if(pm<0){pm=11;py--}
+    return expenses.filter(x=>{const d=new Date(x.date+'T00:00:00');return d.getMonth()===pm&&d.getFullYear()===py});
+  }
+  return expenses.filter(x=>new Date(x.date+'T00:00:00').getFullYear()===statsYear-1);
+}
+function getPeriodLabel(){
+  if(statsPeriod==='week'){
+    const e=addDays(statsWeekStart,6);
+    return `${statsWeekStart.getDate()} ${MONTHS_SHORT[statsWeekStart.getMonth()]} — ${e.getDate()} ${MONTHS_SHORT[e.getMonth()]}`;
+  }
+  if(statsPeriod==='month') return `${MONTHS[statsMonth]} ${statsYear}`;
+  return `${statsYear} год`;
+}
+function navPeriod(dir){
+  if(statsPeriod==='week') statsWeekStart=addDays(statsWeekStart,dir*7);
+  else if(statsPeriod==='month'){statsMonth+=dir;if(statsMonth>11){statsMonth=0;statsYear++}if(statsMonth<0){statsMonth=11;statsYear--}}
+  else statsYear+=dir;
+}
+
 function render(){
-  const app=$('#app');
   let html='';
   if(tab==='add') html=renderAdd();
   else if(tab==='list') html=renderList();
   else if(tab==='stats') html=renderStats();
   else if(tab==='cats') html=renderCats();
-  html+=renderNav();
-  app.innerHTML=html;
-  bind();
-}
-
-function renderNav(){
   const items=[{id:'add',icon:'＋',lb:'Добавить'},{id:'list',icon:'☰',lb:'История'},{id:'stats',icon:'◔',lb:'Анализ'},{id:'cats',icon:'⚙',lb:'Категории'}];
-  return `<nav>${items.map(i=>`<button class="${tab===i.id?'on':''}" data-tab="${i.id}"><span>${i.icon}</span><span class="lb">${i.lb}</span></button>`).join('')}</nav>`;
+  html+=`<nav>${items.map(i=>`<button class="${tab===i.id?'on':''}" data-tab="${i.id}"><span>${i.icon}</span><span class="lb">${i.lb}</span></button>`).join('')}</nav>`;
+  $('#app').innerHTML=html;
+  bind();
 }
 
 function renderAdd(){
@@ -135,30 +171,21 @@ function renderAdd(){
     const on=addCat===c.id;
     return `<button class="chip${on?' on':''}" data-cat="${c.id}" style="${on?`background:${c.color}22;border-color:${c.color};color:${c.color}`:''}">${c.emoji} ${c.name}</button>`;
   }).join('');
-  return `<div class="scroll">
-    <h2>Новый расход</h2>
-    <div class="card${showShake?' shake':''}" style="padding:24px 20px">
-      <div class="lbl">Сумма</div>
+  return `<div class="scroll"><h2>Новый расход</h2>
+    <div class="card${showShake?' shake':''}" style="padding:24px 20px"><div class="lbl">Сумма</div>
       <div style="display:flex;align-items:baseline;gap:6px;margin-top:8px">
         <input type="number" inputmode="decimal" placeholder="0" id="iAmt" value="${addAmount}" style="background:none;border:none;outline:none;font-size:42px;font-weight:700;font-family:var(--font-d);color:var(--tx);width:100%"/>
-        <span style="font-size:28px;color:var(--dim);font-weight:300">₽</span>
-      </div>
-    </div>
-    <div class="card">
-      <div class="lbl">Категория</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">${chips}</div>
-    </div>
+        <span style="font-size:28px;color:var(--dim);font-weight:300">₽</span></div></div>
+    <div class="card"><div class="lbl">Категория</div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">${chips}</div></div>
     <div class="card" style="display:flex;flex-direction:column;gap:14px">
       <div><div class="lbl">Заметка</div><input class="inp" type="text" placeholder="Необязательно" id="iNote" value="${addNote.replace(/"/g,'&quot;')}"/></div>
-      <div><div class="lbl">Дата</div><input class="inp" type="date" id="iDate" value="${addDate}"/></div>
-    </div>
-    <button class="btn${showSuccess?' ok':''}" id="bAdd">${showSuccess?'✓ Добавлено!':'Добавить расход'}</button>
-  </div>`;
+      <div><div class="lbl">Дата</div><input class="inp" type="date" id="iDate" value="${addDate}"/></div></div>
+    <button class="btn${showSuccess?' ok':''}" id="bAdd">${showSuccess?'✓ Добавлено!':'Добавить расход'}</button></div>`;
 }
 
 function renderList(){
   const cm=catMap();
-  if(!expenses.length) return `<div class="scroll"><h2>История</h2><div class="empty"><div class="big">📝</div><p style="font-size:16px">Пока нет расходов</p><p style="font-size:14px;opacity:.6">Добавьте первый расход</p></div></div>`;
+  if(!expenses.length) return `<div class="scroll"><h2>История</h2><div class="empty"><div class="big">📝</div><p style="font-size:16px">Пока нет расходов</p></div></div>`;
   const sorted=[...expenses].sort((a,b)=>b.date.localeCompare(a.date));
   const groups={};sorted.forEach(e=>{if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e)});
   const today=new Date();today.setHours(0,0,0,0);
@@ -166,20 +193,15 @@ function renderList(){
   let html='<div class="scroll"><h2>История</h2>';
   Object.entries(groups).forEach(([date,items])=>{
     const d=new Date(date+'T00:00:00');
-    let label;
-    if(d.getTime()===today.getTime()) label='Сегодня';
-    else if(d.getTime()===yest.getTime()) label='Вчера';
-    else label=d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+    let label=d.getTime()===today.getTime()?'Сегодня':d.getTime()===yest.getTime()?'Вчера':d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
     const dTotal=items.reduce((s,e)=>s+e.amount,0);
     html+=`<div style="margin-bottom:20px"><div class="lbl" style="font-weight:600;margin-bottom:10px">${label} — ${fmt(dTotal)}</div>`;
     items.forEach(e=>{
       const c=cm[e.catId]||{emoji:'❓',name:'?',color:'#999'};
-      html+=`<div class="card row" style="padding:14px 16px">
-        <div class="ico" style="background:${c.color}20">${c.emoji}</div>
+      html+=`<div class="card row" style="padding:14px 16px"><div class="ico" style="background:${c.color}20">${c.emoji}</div>
         <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:500">${c.name}</div>${e.note?`<div style="font-size:13px;color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.note}</div>`:''}</div>
         <div style="font-size:16px;font-weight:600;white-space:nowrap">${fmt(e.amount)}</div>
-        <button class="del" data-del="${e.id}">✕</button>
-      </div>`;
+        <button class="del" data-del="${e.id}">✕</button></div>`;
     });
     html+='</div>';
   });
@@ -188,61 +210,71 @@ function renderList(){
 
 function renderStats(){
   const cm=catMap();
-  const me=expenses.filter(e=>{const d=new Date(e.date+'T00:00:00');return d.getMonth()===statsMonth&&d.getFullYear()===statsYear});
+  const me=getFiltered(),prevMe=getPrevFiltered();
   const total=me.reduce((s,e)=>s+e.amount,0);
+  const prevTotal=prevMe.reduce((s,e)=>s+e.amount,0);
+  const diff=prevTotal?Math.round((total-prevTotal)/prevTotal*100):0;
+  const days=statsPeriod==='week'?7:statsPeriod==='month'?new Date(statsYear,statsMonth+1,0).getDate():(isLeap(statsYear)?366:365);
+  const avgDay=total/days;
+  const periodName=statsPeriod==='week'?'за неделю':statsPeriod==='month'?'за месяц':'за год';
+  const prevLabel=statsPeriod==='week'?'Пред. неделя':statsPeriod==='month'?'Пред. месяц':'Пред. год';
 
   let html=`<div class="scroll"><h2>Анализ</h2>
-    <div class="card month-sel"><button id="pm">‹</button><span style="font-size:16px;font-weight:600">${MONTHS[statsMonth]} ${statsYear}</span><button id="nm">›</button></div>
-    <div class="total-card"><div style="font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.08em">Итого за месяц</div><div class="big">${fmt(total)}</div><div style="font-size:13px;opacity:.7;margin-top:4px">${me.length} операций</div></div>`;
+    <div class="period-tabs">
+      <button class="period-tab${statsPeriod==='week'?' on':''}" data-period="week">Неделя</button>
+      <button class="period-tab${statsPeriod==='month'?' on':''}" data-period="month">Месяц</button>
+      <button class="period-tab${statsPeriod==='year'?' on':''}" data-period="year">Год</button></div>
+    <div class="card nav-sel"><button id="pp">‹</button><span style="font-size:16px;font-weight:600">${getPeriodLabel()}</span><button id="np">›</button></div>
+    <div class="total-card"><div style="font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.08em">Итого ${periodName}</div><div class="big">${fmt(total)}</div><div style="font-size:13px;opacity:.7;margin-top:4px">${me.length} операций</div></div>`;
 
-  if(!total){
-    return html+`<div class="empty"><div class="big">📊</div><p>Нет данных за этот месяц</p></div></div>`;
-  }
+  let trendHtml='';
+  if(prevTotal>0){const cls=diff>0?'trend-up':'trend-down';const ar=diff>0?'↑':'↓';trendHtml=`<div class="sub ${cls}">${ar} ${Math.abs(diff)}%</div>`}
+  html+=`<div class="compare">
+    <div class="compare-card"><div class="lbl">Ср. в день</div><div class="val">${fmt(Math.round(avgDay))}</div></div>
+    <div class="compare-card"><div class="lbl">${prevLabel}</div><div class="val">${fmt(prevTotal)}</div>${trendHtml}</div></div>`;
 
-  // By category
+  if(!total) return html+`<div class="empty"><div class="big">📊</div><p>Нет данных за этот период</p></div></div>`;
+
   const byC={};me.forEach(e=>{byC[e.catId]=(byC[e.catId]||0)+e.amount});
   const catData=Object.entries(byC).map(([id,v])=>({id,value:v,name:cm[id]?.name||'?',color:cm[id]?.color||'#999',emoji:cm[id]?.emoji||'?',pct:Math.round(v/total*100)})).sort((a,b)=>b.value-a.value);
 
-  // Pie chart SVG
-  let pie='';
-  let angle=0;
+  // Pie
+  let pie='',angle=0;
   catData.forEach(c=>{
-    const sweep=c.pct/100*360;
-    const large=sweep>180?1:0;
-    const r=60,cx=70,cy=70;
-    const startRad=(angle-90)*Math.PI/180;
-    const endRad=((angle+sweep)-90)*Math.PI/180;
-    const x1=cx+r*Math.cos(startRad),y1=cy+r*Math.sin(startRad);
-    const x2=cx+r*Math.cos(endRad),y2=cy+r*Math.sin(endRad);
-    if(sweep>=359.9){
-      pie+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c.color}"/>`;
-    } else {
-      pie+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} Z" fill="${c.color}"/>`;
-    }
-    angle+=sweep;
+    const sw=c.pct/100*360,lg=sw>180?1:0,r=60,cx=70,cy=70;
+    const sR=(angle-90)*Math.PI/180,eR=((angle+sw)-90)*Math.PI/180;
+    const x1=cx+r*Math.cos(sR),y1=cy+r*Math.sin(sR),x2=cx+r*Math.cos(eR),y2=cy+r*Math.sin(eR);
+    if(sw>=359.9) pie+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c.color}"/>`;
+    else pie+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lg} 1 ${x2},${y2} Z" fill="${c.color}"/>`;
+    angle+=sw;
   });
-  // Inner circle for donut
   pie+=`<circle cx="70" cy="70" r="34" fill="var(--card)"/>`;
-
   let legend=catData.map(c=>`<div class="pie-legend-item"><div class="pie-dot" style="background:${c.color}"></div><span style="flex:1">${c.emoji} ${c.name}</span><span style="color:var(--dim);font-weight:500">${c.pct}%</span></div>`).join('');
-
   html+=`<div class="card"><div class="lbl" style="margin-bottom:8px">По категориям</div><div class="chart-row"><svg viewBox="0 0 140 140" width="140" height="140">${pie}</svg><div class="pie-legend" style="flex:1">${legend}</div></div></div>`;
 
-  // Bar chart by day
-  const daysInM=new Date(statsYear,statsMonth+1,0).getDate();
-  const daily=Array.from({length:daysInM},(_,i)=>({day:i+1,t:0}));
-  me.forEach(e=>{const d=new Date(e.date+'T00:00:00').getDate();daily[d-1].t+=e.amount});
-  const maxD=Math.max(...daily.map(d=>d.t),1);
-
-  let bars=daily.map((d,i)=>{
-    const h=d.t?Math.max(4,d.t/maxD*100):0;
-    const showLbl=(i%Math.ceil(daysInM/10)===0)||(i===daysInM-1);
-    return `<div class="bar-col"><div class="bar-rect" style="height:${h}%" title="${d.day}: ${fmt(d.t)}"></div>${showLbl?`<div class="bar-label">${d.day}</div>`:''}</div>`;
+  // Bar chart
+  let barData=[],barTitle='';
+  if(statsPeriod==='week'){
+    barTitle='По дням недели';
+    for(let i=0;i<7;i++){const ds=dateStr(addDays(statsWeekStart,i));const t=me.filter(e=>e.date===ds).reduce((s,e)=>s+e.amount,0);barData.push({label:DAYS_SHORT[i],total:t})}
+  } else if(statsPeriod==='month'){
+    barTitle='По дням';
+    const dim=new Date(statsYear,statsMonth+1,0).getDate();
+    for(let i=1;i<=dim;i++){const t=me.filter(e=>new Date(e.date+'T00:00:00').getDate()===i).reduce((s,e)=>s+e.amount,0);barData.push({label:i,total:t})}
+  } else {
+    barTitle='По месяцам';
+    for(let i=0;i<12;i++){const t=me.filter(e=>new Date(e.date+'T00:00:00').getMonth()===i).reduce((s,e)=>s+e.amount,0);barData.push({label:MONTHS_SHORT[i],total:t})}
+  }
+  const maxD=Math.max(...barData.map(d=>d.total),1);
+  const showEvery=statsPeriod==='month'?Math.ceil(barData.length/10):1;
+  let bars=barData.map((d,i)=>{
+    const h=d.total?Math.max(4,d.total/maxD*100):0;
+    const sl=statsPeriod==='month'?((i%showEvery===0)||(i===barData.length-1)):true;
+    return `<div class="bar-col"><div class="bar-rect" style="height:${h}%"></div>${sl?`<div class="bar-label">${d.label}</div>`:''}</div>`;
   }).join('');
+  html+=`<div class="card"><div class="lbl" style="margin-bottom:10px">${barTitle}</div><div class="bars">${bars}</div></div>`;
 
-  html+=`<div class="card"><div class="lbl" style="margin-bottom:10px">По дням</div><div class="bars">${bars}</div></div>`;
-
-  // Top categories
+  // Top
   html+=`<div class="card"><div class="lbl" style="margin-bottom:14px">Топ расходов</div>`;
   catData.forEach(c=>{
     html+=`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px">${c.emoji} ${c.name}</span><span style="font-size:14px;font-weight:600">${fmt(c.value)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${c.pct}%;background:${c.color}"></div></div></div>`;
@@ -265,65 +297,49 @@ function renderCats(){
       <div style="margin-top:14px"><div class="lbl">Цвет</div><div class="color-grid">${colors}</div></div>
       <div style="display:flex;gap:10px;margin-top:18px">
         <button class="btn" id="bCatCancel" style="background:none;border:1px solid var(--brd);color:var(--dim);flex:1">Отмена</button>
-        <button class="btn" id="bCatSave" style="flex:1">Сохранить</button>
-      </div>
-    </div>`;
+        <button class="btn" id="bCatSave" style="flex:1">Сохранить</button></div></div>`;
   }
-  html+='</div>';
-  return html;
+  return html+'</div>';
 }
 
-// ---- Bindings ----
 function bind(){
-  // Nav
   $$('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;render()});
-
   if(tab==='add'){
-    const iAmt=$('#iAmt'),iNote=$('#iNote'),iDate=$('#iDate');
-    if(iAmt){iAmt.oninput=()=>{addAmount=iAmt.value};iAmt.focus()}
-    if(iNote) iNote.oninput=()=>{addNote=iNote.value};
-    if(iDate) iDate.onchange=()=>{addDate=iDate.value};
+    const iA=$('#iAmt'),iN=$('#iNote'),iD=$('#iDate');
+    if(iA){iA.oninput=()=>{addAmount=iA.value};iA.focus()}
+    if(iN) iN.oninput=()=>{addNote=iN.value};
+    if(iD) iD.onchange=()=>{addDate=iD.value};
     $$('[data-cat]').forEach(b=>b.onclick=()=>{addCat=b.dataset.cat;render()});
-    const bAdd=$('#bAdd');
-    if(bAdd) bAdd.onclick=()=>{
-      const val=parseFloat(addAmount.replace(',','.'));
-      if(!val||val<=0||!addCat){showShake=true;render();clearTimeout(shakeTimer);shakeTimer=setTimeout(()=>{showShake=false;render()},500);return}
-      expenses.unshift({id:uid(),amount:val,catId:addCat,note:addNote,date:addDate});
+    const bA=$('#bAdd');
+    if(bA) bA.onclick=()=>{
+      const v=parseFloat(addAmount.replace(',','.'));
+      if(!v||v<=0||!addCat){showShake=true;render();clearTimeout(shakeTimer);shakeTimer=setTimeout(()=>{showShake=false;render()},500);return}
+      expenses.unshift({id:uid(),amount:v,catId:addCat,note:addNote,date:addDate});
       persist();addAmount='';addNote='';addDate=new Date().toISOString().slice(0,10);
       showSuccess=true;render();clearTimeout(successTimer);successTimer=setTimeout(()=>{showSuccess=false;render()},1200);
     };
   }
-
-  if(tab==='list'){
-    $$('[data-del]').forEach(b=>b.onclick=()=>{expenses=expenses.filter(e=>e.id!==b.dataset.del);persist();render()});
-  }
-
+  if(tab==='list') $$('[data-del]').forEach(b=>b.onclick=()=>{expenses=expenses.filter(e=>e.id!==b.dataset.del);persist();render()});
   if(tab==='stats'){
-    const pm=$('#pm'),nm=$('#nm');
-    if(pm) pm.onclick=()=>{if(statsMonth===0){statsMonth=11;statsYear--}else statsMonth--;render()};
-    if(nm) nm.onclick=()=>{if(statsMonth===11){statsMonth=0;statsYear++}else statsMonth++;render()};
+    $$('[data-period]').forEach(b=>b.onclick=()=>{statsPeriod=b.dataset.period;render()});
+    const pp=$('#pp'),np=$('#np');
+    if(pp) pp.onclick=()=>{navPeriod(-1);render()};
+    if(np) np.onclick=()=>{navPeriod(1);render()};
   }
-
   if(tab==='cats'){
     $$('[data-delcat]').forEach(b=>b.onclick=()=>{categories=categories.filter(c=>c.id!==b.dataset.delcat);persist();render()});
-    const bNew=$('#bNewCat');
-    if(bNew) bNew.onclick=()=>{catAdding=true;catName='';catEmoji='📦';catColor='#FF6B6B';render()};
+    const bN=$('#bNewCat');if(bN) bN.onclick=()=>{catAdding=true;catName='';catEmoji='📦';catColor='#FF6B6B';render()};
     $$('[data-em]').forEach(b=>b.onclick=()=>{catEmoji=b.dataset.em;render()});
     $$('[data-col]').forEach(b=>b.onclick=()=>{catColor=b.dataset.col;render()});
-    const iCN=$('#iCatName');
-    if(iCN) iCN.oninput=()=>{catName=iCN.value};
-    const bCancel=$('#bCatCancel');
-    if(bCancel) bCancel.onclick=()=>{catAdding=false;render()};
-    const bSave=$('#bCatSave');
-    if(bSave) bSave.onclick=()=>{
+    const iC=$('#iCatName');if(iC) iC.oninput=()=>{catName=iC.value};
+    const bCa=$('#bCatCancel');if(bCa) bCa.onclick=()=>{catAdding=false;render()};
+    const bS=$('#bCatSave');if(bS) bS.onclick=()=>{
       if(!catName.trim()) return;
       categories.push({id:uid(),name:catName.trim(),emoji:catEmoji,color:catColor});
       persist();catAdding=false;render();
     };
   }
 }
-
-// ---- Init ----
 render();
 </script>
 </body>
