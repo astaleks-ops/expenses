@@ -12,77 +12,33 @@
 <title>Мои Расходы</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script>
-// Generate app icon dynamically
 (function(){
-  var sizes=[180,192,512];
+  var sizes=[180,192];
   sizes.forEach(function(s){
     var c=document.createElement('canvas');c.width=s;c.height=s;
     var x=c.getContext('2d');
-    // Background gradient
     var g=x.createLinearGradient(0,0,s,s);
     g.addColorStop(0,'#5B5FEF');g.addColorStop(1,'#4347C4');
-    x.beginPath();
-    // Rounded rect
-    var r=s*0.22;
+    x.beginPath();var r=s*0.22;
     x.moveTo(r,0);x.lineTo(s-r,0);x.quadraticCurveTo(s,0,s,r);
     x.lineTo(s,s-r);x.quadraticCurveTo(s,s,s-r,s);
     x.lineTo(r,s);x.quadraticCurveTo(0,s,0,s-r);
     x.lineTo(0,r);x.quadraticCurveTo(0,0,r,0);
     x.closePath();x.fillStyle=g;x.fill();
-
-    // Wallet shape
-    var cx=s/2,cy=s*0.46;
-    var ww=s*0.52,wh=s*0.36,wr=s*0.06;
-    x.beginPath();
-    x.moveTo(cx-ww/2+wr,cy-wh/2);
-    x.lineTo(cx+ww/2-wr,cy-wh/2);x.quadraticCurveTo(cx+ww/2,cy-wh/2,cx+ww/2,cy-wh/2+wr);
-    x.lineTo(cx+ww/2,cy+wh/2-wr);x.quadraticCurveTo(cx+ww/2,cy+wh/2,cx+ww/2-wr,cy+wh/2);
-    x.lineTo(cx-ww/2+wr,cy+wh/2);x.quadraticCurveTo(cx-ww/2,cy+wh/2,cx-ww/2,cy+wh/2-wr);
-    x.lineTo(cx-ww/2,cy-wh/2+wr);x.quadraticCurveTo(cx-ww/2,cy-wh/2,cx-ww/2+wr,cy-wh/2);
-    x.closePath();
-    x.fillStyle='rgba(255,255,255,0.95)';x.fill();
-
-    // Card notch on right
-    var nw=s*0.14,nh=s*0.14,nr=s*0.03;
-    var nx=cx+ww/2-nw,ny=cy-nh/2;
-    x.beginPath();
-    x.moveTo(cx+ww/2,ny);
-    x.lineTo(cx+ww/2,ny+nh);
-    x.lineTo(nx+nr,ny+nh);x.quadraticCurveTo(nx,ny+nh,nx,ny+nh-nr);
-    x.lineTo(nx,ny+nr);x.quadraticCurveTo(nx,ny,nx+nr,ny);
-    x.closePath();
-    x.fillStyle='#5B5FEF';x.fill();
-
-    // Small circle in notch
-    x.beginPath();
-    x.arc(nx+nw*0.45,cy,s*0.028,0,Math.PI*2);
-    x.fillStyle='#fff';x.fill();
-
-    // Ruble sign
-    x.fillStyle='#5B5FEF';
-    x.font='bold '+Math.round(s*0.18)+'px Outfit, sans-serif';
-    x.textAlign='center';x.textBaseline='middle';
-    x.fillText('₽',cx-s*0.06,cy+s*0.01);
-
-    // Coin at bottom
+    var cx=s/2,cy=s*0.46,ww=s*0.52,wh=s*0.36,wr=s*0.06;
+    x.beginPath();x.moveTo(cx-ww/2+wr,cy-wh/2);x.lineTo(cx+ww/2-wr,cy-wh/2);x.quadraticCurveTo(cx+ww/2,cy-wh/2,cx+ww/2,cy-wh/2+wr);x.lineTo(cx+ww/2,cy+wh/2-wr);x.quadraticCurveTo(cx+ww/2,cy+wh/2,cx+ww/2-wr,cy+wh/2);x.lineTo(cx-ww/2+wr,cy+wh/2);x.quadraticCurveTo(cx-ww/2,cy+wh/2,cx-ww/2,cy+wh/2-wr);x.lineTo(cx-ww/2,cy-wh/2+wr);x.quadraticCurveTo(cx-ww/2,cy-wh/2,cx-ww/2+wr,cy-wh/2);x.closePath();x.fillStyle='rgba(255,255,255,0.95)';x.fill();
+    var nw=s*0.14,nh=s*0.14,nr=s*0.03,nx=cx+ww/2-nw,ny=cy-nh/2;
+    x.beginPath();x.moveTo(cx+ww/2,ny);x.lineTo(cx+ww/2,ny+nh);x.lineTo(nx+nr,ny+nh);x.quadraticCurveTo(nx,ny+nh,nx,ny+nh-nr);x.lineTo(nx,ny+nr);x.quadraticCurveTo(nx,ny,nx+nr,ny);x.closePath();x.fillStyle='#5B5FEF';x.fill();
+    x.beginPath();x.arc(nx+nw*0.45,cy,s*0.028,0,Math.PI*2);x.fillStyle='#fff';x.fill();
+    x.fillStyle='#5B5FEF';x.font='bold '+Math.round(s*0.18)+'px Outfit, sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('₽',cx-s*0.06,cy+s*0.01);
     var coinX=cx,coinY=s*0.78,coinR=s*0.1;
-    x.beginPath();x.arc(coinX,coinY,coinR,0,Math.PI*2);
-    x.fillStyle='rgba(255,255,255,0.95)';x.fill();
-    x.beginPath();x.arc(coinX,coinY,coinR*0.7,0,Math.PI*2);
-    x.strokeStyle='#5B5FEF';x.lineWidth=s*0.015;x.stroke();
-    x.fillStyle='#5B5FEF';
-    x.font='bold '+Math.round(s*0.09)+'px Outfit, sans-serif';
-    x.fillText('₽',coinX,coinY+s*0.005);
-
+    x.beginPath();x.arc(coinX,coinY,coinR,0,Math.PI*2);x.fillStyle='rgba(255,255,255,0.95)';x.fill();
+    x.beginPath();x.arc(coinX,coinY,coinR*0.7,0,Math.PI*2);x.strokeStyle='#5B5FEF';x.lineWidth=s*0.015;x.stroke();
+    x.fillStyle='#5B5FEF';x.font='bold '+Math.round(s*0.09)+'px Outfit, sans-serif';x.fillText('₽',coinX,coinY+s*0.005);
     var url=c.toDataURL('image/png');
-    if(s===180){
-      var l=document.createElement('link');l.rel='apple-touch-icon';l.href=url;document.head.appendChild(l);
-    }
+    if(s===180){var l=document.createElement('link');l.rel='apple-touch-icon';l.href=url;document.head.appendChild(l)}
     if(s===192){
       var l2=document.createElement('link');l2.rel='icon';l2.type='image/png';l2.sizes='192x192';l2.href=url;document.head.appendChild(l2);
-    }
-    // Manifest
-    if(s===192){
       var manifest={name:'Мои Расходы',short_name:'Расходы',start_url:'.',display:'standalone',background_color:'#111318',theme_color:'#5B5FEF',icons:[{src:url,sizes:'192x192',type:'image/png'}]};
       var blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
       var ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(blob);document.head.appendChild(ml);
@@ -96,6 +52,7 @@
   --bg:#F0F1F5;--card:#FFF;--nav:rgba(255,255,255,.9);
   --tx:#1A1D26;--dim:#8B8FA3;--ac:#5B5FEF;--acd:#4347C4;
   --brd:#E2E4EC;--chip:#F4F5F9;--sh:0 2px 12px rgba(0,0,0,.06);
+  --green:#27AE60;--red:#E74C3C;--orange:#F39C12;
 }
 @media(prefers-color-scheme:dark){:root{
   --bg:#111318;--card:#1C1E27;--nav:rgba(28,30,39,.92);
@@ -121,7 +78,7 @@ h2{font-family:var(--font-d);font-size:26px;margin:0 0 20px;color:var(--tx)}
 .inp{display:block;width:100%;padding:10px 0;background:none;border:none;border-bottom:1px solid var(--brd);outline:none;font-size:16px;color:var(--tx);font-family:var(--font-b)}
 .btn{width:100%;padding:16px;border:none;border-radius:16px;background:var(--ac);color:#fff;font-size:17px;font-weight:600;cursor:pointer;font-family:var(--font-d);transition:background .3s,transform .15s}
 .btn:active{transform:scale(.97)}
-.btn.ok{background:#27AE60;transform:scale(1.03)}
+.btn.ok{background:var(--green);transform:scale(1.03)}
 .row{display:flex;align-items:center;gap:12px}
 .ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .del{background:none;border:none;font-size:16px;cursor:pointer;color:var(--dim);padding:4px;opacity:.4}
@@ -147,8 +104,8 @@ h2{font-family:var(--font-d);font-size:26px;margin:0 0 20px;color:var(--tx)}
 .compare-card{flex:1;background:var(--card);border-radius:16px;padding:14px 12px;box-shadow:var(--sh);text-align:center}
 .compare-card .val{font-size:18px;font-weight:700;font-family:var(--font-d);margin-top:4px}
 .compare-card .sub{font-size:11px;margin-top:2px}
-.trend-up{color:#E74C3C}
-.trend-down{color:#27AE60}
+.trend-up{color:var(--red)}
+.trend-down{color:var(--green)}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .shake{animation:shake .4s}
 .chart-row{display:flex;align-items:center;gap:10px}
@@ -157,8 +114,24 @@ h2{font-family:var(--font-d);font-size:26px;margin:0 0 20px;color:var(--tx)}
 .pie-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 .bars{display:flex;align-items:flex-end;gap:2px;height:120px;padding:0 4px}
 .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
-.bar-rect{width:100%;min-width:3px;background:var(--ac);border-radius:2px 2px 0 0;transition:height .4s}
+.bar-rect{width:100%;min-width:3px;border-radius:2px 2px 0 0;transition:height .4s}
 .bar-label{font-size:8px;color:var(--dim);margin-top:4px;text-align:center}
+/* Need toggle */
+.need-toggle{display:flex;gap:8px;margin-top:12px}
+.need-btn{flex:1;padding:12px 10px;border-radius:14px;font-size:14px;font-weight:500;cursor:pointer;border:2px solid var(--brd);background:var(--chip);color:var(--dim);transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font-b)}
+.need-btn.need-on{border-color:var(--green);background:rgba(39,174,96,.1);color:var(--green);font-weight:700}
+.need-btn.want-on{border-color:var(--orange);background:rgba(243,156,18,.1);color:var(--orange);font-weight:700}
+/* Waste card */
+.waste-card{background:linear-gradient(135deg,var(--orange),#E67E22);border-radius:20px;padding:20px;margin-bottom:14px;color:#fff}
+.waste-card .big{font-size:30px;font-weight:700;font-family:var(--font-d);margin-top:4px}
+.waste-bar{height:10px;background:rgba(255,255,255,.25);border-radius:5px;overflow:hidden;margin-top:10px}
+.waste-bar-fill{height:100%;border-radius:5px;background:#fff;transition:width .6s}
+/* Tag in list */
+.tag{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:600;display:inline-block;margin-top:3px}
+.tag-need{background:rgba(39,174,96,.12);color:var(--green)}
+.tag-want{background:rgba(243,156,18,.12);color:var(--orange)}
+/* Stacked bar */
+.stacked-bar{height:14px;border-radius:7px;overflow:hidden;display:flex;margin-top:8px}
 </style>
 </head>
 <body>
@@ -194,6 +167,7 @@ let statsWeekStart=getMonday(new Date());
 let catAdding=false,catName='',catEmoji='📦',catColor='#FF6B6B';
 let addCat=categories[0]?.id||'';
 let addNote='',addAmount='',addDate=new Date().toISOString().slice(0,10);
+let addNeed=true; // true = нужно, false = не нужно
 let successTimer=null,shakeTimer=null,showSuccess=false,showShake=false;
 
 function persist(){save(LS_EXP,expenses);save(LS_CAT,categories)}
@@ -244,6 +218,12 @@ function renderAdd(){
         <input type="number" inputmode="decimal" placeholder="0" id="iAmt" value="${addAmount}" style="background:none;border:none;outline:none;font-size:42px;font-weight:700;font-family:var(--font-d);color:var(--tx);width:100%"/>
         <span style="font-size:28px;color:var(--dim);font-weight:300">₽</span></div></div>
     <div class="card"><div class="lbl">Категория</div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px">${chips}</div></div>
+    <div class="card"><div class="lbl">Это нужная покупка?</div>
+      <div class="need-toggle">
+        <button class="need-btn${addNeed?' need-on':''}" id="bNeed">✓ Нужно</button>
+        <button class="need-btn${!addNeed?' want-on':''}" id="bWant">✗ Не нужно</button>
+      </div>
+    </div>
     <div class="card" style="display:flex;flex-direction:column;gap:14px">
       <div><div class="lbl">Заметка</div><input class="inp" type="text" placeholder="Необязательно" id="iNote" value="${addNote.replace(/"/g,'&quot;')}"/></div>
       <div><div class="lbl">Дата</div><input class="inp" type="date" id="iDate" value="${addDate}"/></div></div>
@@ -261,11 +241,18 @@ function renderList(){
     const d=new Date(date+'T00:00:00');
     let label=d.getTime()===today.getTime()?'Сегодня':d.getTime()===yest.getTime()?'Вчера':d.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
     const dTotal=items.reduce((s,e)=>s+e.amount,0);
-    html+=`<div style="margin-bottom:20px"><div class="lbl" style="font-weight:600;margin-bottom:10px">${label} — ${fmt(dTotal)}</div>`;
+    const dWaste=items.filter(e=>e.need===false).reduce((s,e)=>s+e.amount,0);
+    html+=`<div style="margin-bottom:20px"><div class="lbl" style="font-weight:600;margin-bottom:10px">${label} — ${fmt(dTotal)}${dWaste?` <span style="color:var(--orange)">(лишние: ${fmt(dWaste)})</span>`:''}</div>`;
     items.forEach(e=>{
       const c=cm[e.catId]||{emoji:'❓',name:'?',color:'#999'};
-      html+=`<div class="card row" style="padding:14px 16px"><div class="ico" style="background:${c.color}20">${c.emoji}</div>
-        <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:500">${c.name}</div>${e.note?`<div style="font-size:13px;color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.note}</div>`:''}</div>
+      const isWant=e.need===false;
+      html+=`<div class="card row" style="padding:14px 16px;${isWant?'border-left:3px solid var(--orange)':''}">
+        <div class="ico" style="background:${c.color}20">${c.emoji}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:500">${c.name}</div>
+          ${e.note?`<div style="font-size:13px;color:var(--dim);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.note}</div>`:''}
+          <span class="tag ${isWant?'tag-want':'tag-need'}">${isWant?'Не нужно':'Нужно'}</span>
+        </div>
         <div style="font-size:16px;font-weight:600;white-space:nowrap">${fmt(e.amount)}</div>
         <button class="del" data-del="${e.id}">✕</button></div>`;
     });html+='</div>';
@@ -282,6 +269,13 @@ function renderStats(){
   const periodName=statsPeriod==='week'?'за неделю':statsPeriod==='month'?'за месяц':'за год';
   const prevLabel=statsPeriod==='week'?'Пред. неделя':statsPeriod==='month'?'Пред. месяц':'Пред. год';
 
+  // Waste calculations
+  const needTotal=me.filter(e=>e.need!==false).reduce((s,e)=>s+e.amount,0);
+  const wasteTotal=me.filter(e=>e.need===false).reduce((s,e)=>s+e.amount,0);
+  const wastePct=total?Math.round(wasteTotal/total*100):0;
+  const prevWaste=prevMe.filter(e=>e.need===false).reduce((s,e)=>s+e.amount,0);
+  const wasteDiff=prevWaste?Math.round((wasteTotal-prevWaste)/prevWaste*100):0;
+
   let html=`<div class="scroll"><h2>Анализ</h2>
     <div class="period-tabs">
       <button class="period-tab${statsPeriod==='week'?' on':''}" data-period="week">Неделя</button>
@@ -289,6 +283,22 @@ function renderStats(){
       <button class="period-tab${statsPeriod==='year'?' on':''}" data-period="year">Год</button></div>
     <div class="card nav-sel"><button id="pp">‹</button><span style="font-size:16px;font-weight:600">${getPeriodLabel()}</span><button id="np">›</button></div>
     <div class="total-card"><div style="font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.08em">Итого ${periodName}</div><div class="big">${fmt(total)}</div><div style="font-size:13px;opacity:.7;margin-top:4px">${me.length} операций</div></div>`;
+
+  // Waste card
+  if(total>0){
+    html+=`<div class="waste-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:13px;opacity:.8;text-transform:uppercase;letter-spacing:.08em">Лишние траты</div>
+          <div class="big">${fmt(wasteTotal)}</div></div>
+        <div style="text-align:right"><div style="font-size:32px;font-weight:800;font-family:var(--font-d)">${wastePct}%</div>
+          <div style="font-size:11px;opacity:.7">от всех расходов</div></div></div>
+      <div class="waste-bar"><div class="waste-bar-fill" style="width:${wastePct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;opacity:.8">
+        <span>Нужные: ${fmt(needTotal)}</span>
+        <span>Лишние: ${fmt(wasteTotal)}</span></div>
+      ${prevWaste>0?`<div style="font-size:12px;margin-top:6px;opacity:.8">${wasteDiff>0?'↑':'↓'} ${Math.abs(wasteDiff)}% лишних трат vs ${prevLabel.toLowerCase()}</div>`:''}
+    </div>`;
+  }
 
   let trendHtml='';
   if(prevTotal>0){const cls=diff>0?'trend-up':'trend-down';const ar=diff>0?'↑':'↓';trendHtml=`<div class="sub ${cls}">${ar} ${Math.abs(diff)}%</div>`}
@@ -298,9 +308,18 @@ function renderStats(){
 
   if(!total) return html+`<div class="empty"><div class="big">📊</div><p>Нет данных за этот период</p></div></div>`;
 
-  const byC={};me.forEach(e=>{byC[e.catId]=(byC[e.catId]||0)+e.amount});
-  const catData=Object.entries(byC).map(([id,v])=>({id,value:v,name:cm[id]?.name||'?',color:cm[id]?.color||'#999',emoji:cm[id]?.emoji||'?',pct:Math.round(v/total*100)})).sort((a,b)=>b.value-a.value);
+  // By category with need/want breakdown
+  const byC={};me.forEach(e=>{
+    if(!byC[e.catId]) byC[e.catId]={need:0,want:0};
+    if(e.need===false) byC[e.catId].want+=e.amount;
+    else byC[e.catId].need+=e.amount;
+  });
+  const catData=Object.entries(byC).map(([id,v])=>{
+    const t=v.need+v.want;
+    return{id,value:t,need:v.need,want:v.want,name:cm[id]?.name||'?',color:cm[id]?.color||'#999',emoji:cm[id]?.emoji||'?',pct:Math.round(t/total*100),wPct:t?Math.round(v.want/t*100):0}
+  }).sort((a,b)=>b.value-a.value);
 
+  // Pie
   let pie='',angle=0;
   catData.forEach(c=>{
     const sw=c.pct/100*360,lg=sw>180?1:0,r=60,cx=70,cy=70;
@@ -314,17 +333,73 @@ function renderStats(){
   let legend=catData.map(c=>`<div class="pie-legend-item"><div class="pie-dot" style="background:${c.color}"></div><span style="flex:1">${c.emoji} ${c.name}</span><span style="color:var(--dim);font-weight:500">${c.pct}%</span></div>`).join('');
   html+=`<div class="card"><div class="lbl" style="margin-bottom:8px">По категориям</div><div class="chart-row"><svg viewBox="0 0 140 140" width="140" height="140">${pie}</svg><div class="pie-legend" style="flex:1">${legend}</div></div></div>`;
 
-  let barData=[],barTitle='';
-  if(statsPeriod==='week'){barTitle='По дням недели';for(let i=0;i<7;i++){const ds=dateStr(addDays(statsWeekStart,i));const t=me.filter(e=>e.date===ds).reduce((s,e)=>s+e.amount,0);barData.push({label:DAYS_SHORT[i],total:t})}}
-  else if(statsPeriod==='month'){barTitle='По дням';const dim=new Date(statsYear,statsMonth+1,0).getDate();for(let i=1;i<=dim;i++){const t=me.filter(e=>new Date(e.date+'T00:00:00').getDate()===i).reduce((s,e)=>s+e.amount,0);barData.push({label:i,total:t})}}
-  else{barTitle='По месяцам';for(let i=0;i<12;i++){const t=me.filter(e=>new Date(e.date+'T00:00:00').getMonth()===i).reduce((s,e)=>s+e.amount,0);barData.push({label:MONTHS_SHORT[i],total:t})}}
-  const maxD=Math.max(...barData.map(d=>d.total),1);
-  const showEvery=statsPeriod==='month'?Math.ceil(barData.length/10):1;
-  let bars=barData.map((d,i)=>{const h=d.total?Math.max(4,d.total/maxD*100):0;const sl=statsPeriod==='month'?((i%showEvery===0)||(i===barData.length-1)):true;return `<div class="bar-col"><div class="bar-rect" style="height:${h}%"></div>${sl?`<div class="bar-label">${d.label}</div>`:''}</div>`}).join('');
-  html+=`<div class="card"><div class="lbl" style="margin-bottom:10px">${barTitle}</div><div class="bars">${bars}</div></div>`;
+  // Need/want pie
+  if(total>0){
+    let nwPie='';
+    const needPct=100-wastePct;
+    if(needPct>=100){nwPie=`<circle cx="70" cy="70" r="60" fill="var(--green)"/>`}
+    else if(needPct<=0){nwPie=`<circle cx="70" cy="70" r="60" fill="var(--orange)"/>`}
+    else{
+      const sw1=needPct/100*360,r=60,cx=70,cy=70;
+      const sR1=-90*Math.PI/180,eR1=(sw1-90)*Math.PI/180;
+      const x1=cx+r*Math.cos(sR1),y1=cy+r*Math.sin(sR1),x2=cx+r*Math.cos(eR1),y2=cy+r*Math.sin(eR1);
+      const lg1=sw1>180?1:0;
+      nwPie+=`<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${lg1} 1 ${x2},${y2} Z" fill="#27AE60"/>`;
+      const sw2=wastePct/100*360,sR2=eR1,eR2=(sw1+sw2-90)*Math.PI/180;
+      const x3=cx+r*Math.cos(sR2),y3=cy+r*Math.sin(sR2),x4=cx+r*Math.cos(eR2),y4=cy+r*Math.sin(eR2);
+      const lg2=sw2>180?1:0;
+      nwPie+=`<path d="M${cx},${cy} L${x3},${y3} A${r},${r} 0 ${lg2} 1 ${x4},${y4} Z" fill="#F39C12"/>`;
+    }
+    nwPie+=`<circle cx="70" cy="70" r="34" fill="var(--card)"/>`;
+    html+=`<div class="card"><div class="lbl" style="margin-bottom:8px">Нужные vs Лишние</div><div class="chart-row">
+      <svg viewBox="0 0 140 140" width="140" height="140">${nwPie}</svg>
+      <div class="pie-legend" style="flex:1">
+        <div class="pie-legend-item"><div class="pie-dot" style="background:var(--green)"></div><span style="flex:1">Нужные</span><span style="color:var(--dim);font-weight:500">${needPct}%</span></div>
+        <div class="pie-legend-item"><div class="pie-dot" style="background:var(--orange)"></div><span style="flex:1">Лишние</span><span style="color:var(--dim);font-weight:500">${wastePct}%</span></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--dim)">Можно сэкономить<br><strong style="color:var(--orange);font-size:16px">${fmt(wasteTotal)}</strong></div>
+      </div></div></div>`;
+  }
 
-  html+=`<div class="card"><div class="lbl" style="margin-bottom:14px">Топ расходов</div>`;
-  catData.forEach(c=>{html+=`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px">${c.emoji} ${c.name}</span><span style="font-size:14px;font-weight:600">${fmt(c.value)}</span></div><div class="bar-track"><div class="bar-fill" style="width:${c.pct}%;background:${c.color}"></div></div></div>`});
+  // Bar chart with stacked need/want
+  let barData=[],barTitle='';
+  if(statsPeriod==='week'){barTitle='По дням недели';for(let i=0;i<7;i++){const ds=dateStr(addDays(statsWeekStart,i));const items=me.filter(e=>e.date===ds);barData.push({label:DAYS_SHORT[i],need:items.filter(e=>e.need!==false).reduce((s,e)=>s+e.amount,0),want:items.filter(e=>e.need===false).reduce((s,e)=>s+e.amount,0)})}}
+  else if(statsPeriod==='month'){barTitle='По дням';const dim=new Date(statsYear,statsMonth+1,0).getDate();for(let i=1;i<=dim;i++){const items=me.filter(e=>new Date(e.date+'T00:00:00').getDate()===i);barData.push({label:i,need:items.filter(e=>e.need!==false).reduce((s,e)=>s+e.amount,0),want:items.filter(e=>e.need===false).reduce((s,e)=>s+e.amount,0)})}}
+  else{barTitle='По месяцам';for(let i=0;i<12;i++){const items=me.filter(e=>new Date(e.date+'T00:00:00').getMonth()===i);barData.push({label:MONTHS_SHORT[i],need:items.filter(e=>e.need!==false).reduce((s,e)=>s+e.amount,0),want:items.filter(e=>e.need===false).reduce((s,e)=>s+e.amount,0)})}}
+  const maxD=Math.max(...barData.map(d=>d.need+d.want),1);
+  const showEvery=statsPeriod==='month'?Math.ceil(barData.length/10):1;
+  let bars=barData.map((d,i)=>{
+    const t=d.need+d.want;const h=t?Math.max(4,t/maxD*100):0;
+    const needH=t?(d.need/t*h):0;const wantH=t?(d.want/t*h):0;
+    const sl=statsPeriod==='month'?((i%showEvery===0)||(i===barData.length-1)):true;
+    return `<div class="bar-col">
+      <div style="width:100%;height:${h}%;display:flex;flex-direction:column;justify-content:flex-end">
+        ${wantH>0?`<div class="bar-rect" style="height:${wantH/(needH+wantH)*100}%;background:var(--orange);border-radius:${needH>0?'2px 2px 0 0':'2px'}"></div>`:''}
+        ${needH>0?`<div class="bar-rect" style="height:${needH/(needH+wantH)*100}%;background:var(--ac);border-radius:${wantH>0?'0':'2px 2px 0 0'}"></div>`:''}
+      </div>
+      ${sl?`<div class="bar-label">${d.label}</div>`:''}</div>`;
+  }).join('');
+  html+=`<div class="card"><div class="lbl" style="margin-bottom:10px">${barTitle}</div><div class="bars">${bars}</div>
+    <div style="display:flex;gap:14px;margin-top:10px;justify-content:center">
+      <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--dim)"><div style="width:8px;height:8px;border-radius:2px;background:var(--ac)"></div>Нужные</div>
+      <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--dim)"><div style="width:8px;height:8px;border-radius:2px;background:var(--orange)"></div>Лишние</div>
+    </div></div>`;
+
+  // Top categories with waste breakdown
+  html+=`<div class="card"><div class="lbl" style="margin-bottom:14px">По категориям — где лишние?</div>`;
+  catData.forEach(c=>{
+    const needW=c.value?Math.round(c.need/c.value*100):100;
+    html+=`<div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:14px">${c.emoji} ${c.name}</span>
+        <span style="font-size:14px;font-weight:600">${fmt(c.value)}</span></div>
+      <div class="stacked-bar">
+        <div style="width:${needW}%;background:${c.color};height:100%"></div>
+        <div style="width:${100-needW}%;background:var(--orange);height:100%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-top:4px">
+        <span>Нужные: ${fmt(c.need)}</span>
+        ${c.want>0?`<span style="color:var(--orange)">Лишние: ${fmt(c.want)}</span>`:''}
+      </div></div>`;
+  });
   html+='</div></div>';
   return html;
 }
@@ -355,12 +430,15 @@ function bind(){
     if(iN) iN.oninput=()=>{addNote=iN.value};
     if(iD) iD.onchange=()=>{addDate=iD.value};
     $$('[data-cat]').forEach(b=>b.onclick=()=>{addCat=b.dataset.cat;render()});
+    const bN=$('#bNeed'),bW=$('#bWant');
+    if(bN) bN.onclick=()=>{addNeed=true;render()};
+    if(bW) bW.onclick=()=>{addNeed=false;render()};
     const bA=$('#bAdd');
     if(bA) bA.onclick=()=>{
       const v=parseFloat(addAmount.replace(',','.'));
       if(!v||v<=0||!addCat){showShake=true;render();clearTimeout(shakeTimer);shakeTimer=setTimeout(()=>{showShake=false;render()},500);return}
-      expenses.unshift({id:uid(),amount:v,catId:addCat,note:addNote,date:addDate});
-      persist();addAmount='';addNote='';addDate=new Date().toISOString().slice(0,10);
+      expenses.unshift({id:uid(),amount:v,catId:addCat,note:addNote,date:addDate,need:addNeed});
+      persist();addAmount='';addNote='';addDate=new Date().toISOString().slice(0,10);addNeed=true;
       showSuccess=true;render();clearTimeout(successTimer);successTimer=setTimeout(()=>{showSuccess=false;render()},1200);
     };
   }
